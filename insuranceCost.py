@@ -7,6 +7,7 @@ Created on Tue Feb 19 16:30:43 2019
 
 import pandas as pd
 import numpy as np
+from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy.stats.stats import pearsonr
@@ -243,6 +244,9 @@ np.corrcoef(dfData.age, dfData.charges) #- 0.29900819
 #- BMI & Charges
 np.corrcoef(dfData.bmi, dfData.charges) #- .19834097
 
+#- smoker & BMI
+np.corrcoef(dfData.nSmoker, dfData.bmi)  #- 0.00375043 - Almost no correlation
+
 #- smoker & charges
 np.corrcoef(dfData.nSmoker, dfData.charges)  #- 0.78725143 - High correlation
 
@@ -256,7 +260,7 @@ sns.lmplot(x='bmi', y='charges',  data=dfData, hue='ageGrp', fit_reg=False,  pal
 #plt.legend(loc='lower right')
 plt.show()
 
-f, (ax1, ax2, ax3,ax4) = plt.subplots(ncols=4, figsize=(30,10))
+f, (ax1, ax2, ax3,ax4,ax5) = plt.subplots(ncols=5, figsize=(30,8))
 sns.stripplot(x='ageGrp', y='charges',  hue='smoker', data=dfData, ax=ax1, linewidth=1, palette="Set2",
               size=5, jitter=.25, dodge=True)
 ax1.set_title('Age vs. Charges')
@@ -269,8 +273,35 @@ ax3.set_title('Wt., smoker vs. Charges')
 sns.stripplot(x='region', y='charges', hue='smoker', data=dfData, ax=ax4, linewidth=1.2, palette="Set1",
               size=5, jitter=.25, dodge=True)
 ax4.set_title('Region, smoker vs. Charges')
+sns.stripplot(x='ageGrp', y='bmi',  hue='smoker', data=dfData, ax=ax5, linewidth=.8, palette="Set2",
+              size=5, jitter=.25, dodge=True)
+ax5.set_title('Age vs. BMI Vs Smoker')
 plt.show()
 
+f,(ax6,ax7) = plt.subplots(ncols=2, figsize=(16,6))
+sns.stripplot(x='smoker', y='age',  hue='wtype', data=dfData, ax=ax6, linewidth=.8, 
+              palette="Set2", size=5, jitter=.25, dodge=True)
+ax6.set_title('Smoker vs. Age Vs Wtype')
+sns.stripplot(x='wtype', y='age',  hue='smoker', data=dfData, ax=ax7,
+              linewidth=.8, palette="Set2", size=5, jitter=.25, dodge=True)
+ax6.set_title('Wtype vs. Age Vs Smoker')
+plt.show()
+
+#-- Plot a 3D scatterplot along age, wt, smoker
+scat3d = plt.figure()
+ax = scat3d.add_subplot(111, projection='3d')
+
+xAxis = [dfData.age.values]
+zAxis = [dfData.bmi.values]
+yAxis = [dfData.nSmoker.values]
+
+ax.scatter(xAxis,yAxis,zAxis,  marker='x')
+ax.set_xlabel('Age')
+ax.set_ylabel('Smoker')
+ax.set_zlabel('BMI')
+plt.show()
+
+#---
 
 #- Regression 1
 X1 = dfData[['age','bmi','nSmoker','children']]
@@ -313,7 +344,9 @@ print("Intercept: " , regr2.intercept_) #- [-11676.83042519]
 print("Coeff.: " , regr2.coef_) #- [  259.54749155   322.61513282 23823.68449531]
 
 regr2.predict([[37,34.2,1]])
-Out[12]: array([[32783.54879995]])
+#Out[12]: array([[32783.54879995]])
 
 regr2.predict([[37,34.2,0]])
+#Out[13]: array([[8959.86430464]])
+
 
